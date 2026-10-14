@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/bootdotdev/learn-web-security/internal/accounts"
 	"github.com/bootdotdev/learn-web-security/internal/auth/sessions"
@@ -95,6 +96,16 @@ func (handler *Handler) Products(responseWriter http.ResponseWriter, request *ht
 }
 
 func (handler *Handler) WarehouseOrders(responseWriter http.ResponseWriter, request *http.Request) {
+	rawApiKey := request.Header.Get("X-API-Key")
+	apiKey, ok, err := handler.apiStore.FindKey(request.Context(), rawApiKey)
+	if err != nil || !ok {
+		httpx.RespondWithJSON(responseWriter, http.StatusUnauthorized, map[string]any{"error": err})
+		return
+	}
+	if !strings.Contains(apiKey.Scope, "orders:read") {
+		httpx.RespondWithJSON(responseWriter, http.StatusForbidden, map[string]any{"error": "Missing read scope"})
+		return
+	}
 	orders, err := handler.orderStore.ListAll(request.Context())
 	if err != nil {
 		handler.internalError(responseWriter, request, err)
