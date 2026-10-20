@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strconv"
 
 	"github.com/bootdotdev/learn-web-security/internal/database/dbgen"
 )
@@ -51,17 +50,28 @@ func (store *Store) ListProducts(ctx context.Context, maxResults int64) ([]Produ
 }
 
 func (store *Store) SearchProducts(ctx context.Context, query string, maxResults int64) ([]Product, error) {
-	searchSQL := `SELECT id, name, description, image_path, price_cents, cost_cents, inventory_count, is_active, created_at
-		FROM products
-		WHERE is_active = 1 AND (name LIKE '%` + query + `%' OR description LIKE '%` + query + `%')
-		ORDER BY id
-		LIMIT ` + strconv.FormatInt(maxResults, 10)
-	rows, err := store.database.QueryContext(ctx, searchSQL)
+	products, err := store.queries.SearchActiveProducts(ctx, dbgen.SearchActiveProductsParams{
+		Pattern:    "%" + query + "%",
+		MaxResults: maxResults,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("search products: %w", err)
+		return []Product{}, err
 	}
-	defer rows.Close()
-	return scanProducts(rows)
+	result := make([]Product, len(products))
+	for idx, it := range products {
+		result[idx] = Product{
+			ID:             it.ID,
+			Name:           it.Name,
+			Description:    it.Description,
+			ImagePath:      it.ImagePath,
+			PriceCents:     it.PriceCents,
+			CostCents:      it.CostCents,
+			InventoryCount: it.InventoryCount,
+			IsActive:       it.IsActive == 1,
+			CreatedAt:      it.CreatedAt,
+		}
+	}
+	return result, nil
 }
 
 func (store *Store) ListAllProducts(ctx context.Context) ([]Product, error) {
