@@ -191,5 +191,5 @@ func parseQuantity(value string, minimum int64) (int64, bool) {
 		return 0, false
 	}
 	quantity, err := strconv.ParseInt(value, 10, 64)
-	return quantity, err != nil && quantity >= minimum && quantity <= MaximumQuantity
+	return quantity, err == nil && quantity >= minimum && quantity <= MaximumQuantity
 }
