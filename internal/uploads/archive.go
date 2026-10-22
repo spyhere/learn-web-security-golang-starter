@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"mime"
 	"os"
 	"path/filepath"
 	"strings"
@@ -83,15 +82,15 @@ func ExtractTaxDocumentArchive(encryptionKeyring Keyring, contents []byte, extra
 		if err != nil {
 			return ExtractedTaxDocumentArchive{}, &ArchiveImportError{Message: "Choose a valid ZIP archive.", StatusCode: 400}
 		}
-		contentType := mime.TypeByExtension(filepath.Ext(entry.Name))
-		if contentType == "" {
-			contentType = "application/octet-stream"
+		contentType, extension, ok := detectDocumentType(entryContents)
+		if !ok {
+			return ExtractedTaxDocumentArchive{}, &ArchiveImportError{Message: "Unsupported archive type"}
 		}
 		storedContents, encrypted, err := encryptDocument(entryContents, encryptionKeyring)
 		if err != nil {
 			return ExtractedTaxDocumentArchive{}, err
 		}
-		storagePath := entryDestination
+		storagePath := filepath.Join(importDirectory, uuid.NewV4().String()+extension)
 		if encrypted {
 			storagePath += ".enc"
 		}
