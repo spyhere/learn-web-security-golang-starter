@@ -9,6 +9,7 @@ import (
 	"math"
 	"net"
 	"net/http"
+	"net/url"
 	"slices"
 	"strconv"
 	"strings"
@@ -75,6 +76,39 @@ func recoverPanics(logger *logging.Logger, renderer *templates.Renderer) middlew
 				}
 			}()
 			next.ServeHTTP(responseWriter, request)
+		})
+	}
+}
+
+func verifyOrigin(originApp string, renderer *templates.Renderer) middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != "POST" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			originH := r.Header.Get("Origin")
+			if originH == "" {
+				referer := r.Header.Get("Referer")
+				parsedUrl, err := url.Parse(referer)
+				if err != nil {
+					if err := httpx.RespondWithErrorPage(w, renderer, http.StatusForbidden, "Forbidden", "Forbidden"); err != nil {
+						http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+					}
+					return
+				}
+				originH = parsedUrl.Scheme + "://" + parsedUrl.Hostname()
+				if parsedUrl.Port() != "" {
+					originH += ":" + parsedUrl.Port()
+				}
+			}
+			if originH != originApp {
+				if err := httpx.RespondWithErrorPage(w, renderer, http.StatusForbidden, "Forbidden", "Forbidden"); err != nil {
+					http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+				}
+				return
+			}
+			next.ServeHTTP(w, r)
 		})
 	}
 }
