@@ -113,6 +113,13 @@ func verifyOrigin(originApp string, renderer *templates.Renderer) middleware {
 	}
 }
 
+func addCSPHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func LoadShedder(_ int, _ int) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return next
