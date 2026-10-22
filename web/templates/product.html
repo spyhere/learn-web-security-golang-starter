@@ -1,32 +1,22 @@
 {{define "product"}}{{template "document-start" .}}
 <nav class="page-nav" aria-label="Primary">
-  <a class="brand-link" href="/">Bearly Secure</a>{{if .Current}}<a href="/cart"
-    >Cart</a
-  ><a href="/account">Hello, {{.Current.DisplayName}}</a>{{if
-  .Current.IsAdmin}}<a href="/support">Support</a
-  ><a href="/admin">Admin</a>{{end}}{{else}}<a href="/login">Log in</a>{{end}}
+  <a class="brand-link" href="/">Bearly Secure</a>{{if .Current}}<a href="/cart">Cart</a><a href="/account">Hello,
+    {{.Current.DisplayName}}</a>{{if
+  .Current.IsAdmin}}<a href="/support">Support</a><a href="/admin">Admin</a>{{end}}{{else}}<a href="/login">Log
+    in</a>{{end}}
 </nav>
 <p class="eyebrow">{{money .Product.PriceCents}}</p>
 <h1>{{.Product.Name}}</h1>
 {{if and .Current .Current.IsAdmin}}
 <p class="page-action">
-  <a class="button-link" href="/admin/products/{{.Product.ID}}/edit"
-    >Edit product</a
-  >
+  <a class="button-link" href="/admin/products/{{.Product.ID}}/edit">Edit product</a>
 </p>
 {{end}}
 <section class="product-detail-hero">
   <div class="product-image-frame product-detail-image-frame">
-    <img
-      class="product-detail-image"
-      src="{{.Product.ImagePath}}"
-      alt="{{.Product.Name}} product photo"
-      width="640"
-      height="640"
-    />
-    {{if .OutOfStock}}<span class="stock-overlay" aria-hidden="true"
-      >Out of stock</span
-    >{{end}}
+    <img class="product-detail-image" src="{{.Product.ImagePath}}" alt="{{.Product.Name}} product photo" width="640"
+      height="640" />
+    {{if .OutOfStock}}<span class="stock-overlay" aria-hidden="true">Out of stock</span>{{end}}
   </div>
   <div>
     <p class="lede">{{.Product.Description}}</p>
@@ -38,22 +28,10 @@
     </p>
     {{else}}
     <form method="post" action="/cart/items" class="cart-form">
-      {{if .Current}}<input
-        name="csrfToken"
-        type="hidden"
-        value="{{.Current.CSRFToken}}"
-      />{{end}}
+      {{if .Current}}<input name="csrfToken" type="hidden" value="{{.Current.CSRFToken}}" />{{end}}
       <input name="productId" type="hidden" value="{{.Product.ID}}" />
-      <label
-        >Quantity
-        <input
-          name="quantity"
-          type="number"
-          min="1"
-          max="{{.MaximumCartQuantity}}"
-          value="1"
-          required
-        />
+      <label>Quantity
+        <input name="quantity" type="number" min="1" max="{{.MaximumCartQuantity}}" value="1" required />
       </label>
       <button type="submit">Add to cart</button>
     </form>
@@ -66,8 +44,8 @@
     <dl>
       <dt>Inventory</dt>
       <dd>
-        {{if .OutOfStock}}<span class="out-of-stock">Out of stock</span
-        >{{else}}{{.Product.InventoryCount}} in stock{{end}}
+        {{if .OutOfStock}}<span class="out-of-stock">Out of stock</span>{{else}}{{.Product.InventoryCount}} in
+        stock{{end}}
       </dd>
       <dt>Product ID</dt>
       <dd>{{.Product.ID}}</dd>
@@ -82,10 +60,8 @@
         <p class="rating" aria-label="{{.Rating}} out of 5 stars">
           {{stars .Rating}}{{emptyStars .Rating}}
         </p>
-        <p>{{.BodyHTML}}</p>
-        {{if .CanEdit}}<a href="/account/reviews/{{.ID}}/edit"
-          >Edit your review</a
-        >{{end}}
+        <p>{{.Review.Body}}</p>
+        {{if .CanEdit}}<a href="/account/reviews/{{.ID}}/edit">Edit your review</a>{{end}}
       </article>
       {{end}}{{else}}
       <p>No reviews yet. This bear is waiting for judgment.</p>
@@ -94,15 +70,10 @@
   </article>
   <article class="card">
     {{if .Current}}
-    <form
-      method="post"
-      action="/products/{{.Product.ID}}/reviews"
-      class="review-form"
-    >
+    <form method="post" action="/products/{{.Product.ID}}/reviews" class="review-form">
       <input name="csrfToken" type="hidden" value="{{.Current.CSRFToken}}" />
       <h2>Write a Review</h2>
-      <label
-        >Rating
+      <label>Rating
         <select name="rating" required>
           <option value="5">5 stars</option>
           <option value="4">4 stars</option>
@@ -111,8 +82,7 @@
           <option value="1">1 star</option>
         </select>
       </label>
-      <label
-        >Review
+      <label>Review
         <textarea name="body" rows="5" maxlength="1000" required></textarea>
       </label>
       <button type="submit">Post review</button>
