@@ -121,6 +121,7 @@ func addCSPHeader(next http.Handler) http.Handler {
 		)
 		w.Header().Add("Content-Security-Policy", cspValue)
 		w.Header().Add("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Add("Referrer-Policy", "strict-origin-when-cross-origin")
 		next.ServeHTTP(w, r)
 	})
 }
