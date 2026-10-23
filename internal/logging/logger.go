@@ -31,10 +31,24 @@ func (logger *Logger) Close() error {
 	return logger.file.Close()
 }
 
+var sensitiveFields = map[string]struct{}{
+	"sessionId":   {},
+	"resetToken":  {},
+	"resetLink":   {},
+	"secret":      {},
+	"adminNotes":  {},
+	"storagePath": {},
+}
+
 func (logger *Logger) Event(eventName string, fields map[string]any) error {
 	record := map[string]any{
 		"timestamp": logger.now().UTC().Format("2006-01-02T15:04:05.000Z"),
 		"event":     eventName,
+	}
+	for k := range fields {
+		if _, ok := sensitiveFields[k]; ok {
+			fields[k] = "[REDACTED]"
+		}
 	}
 	maps.Copy(record, fields)
 
