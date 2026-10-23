@@ -116,10 +116,11 @@ func verifyOrigin(originApp string, renderer *templates.Renderer) middleware {
 func addCSPHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cspValue := fmt.Sprintf(
-			"default-src 'self'; script-src 'self'%s; style-src 'self'; img-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'",
+			"default-src 'self'; script-src 'self'%s; style-src 'self'; img-src 'self' data:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
 			fmt.Sprintf(" 'nonce-%s'", httpx.CSPNonce(r.Context())),
 		)
 		w.Header().Add("Content-Security-Policy", cspValue)
+		w.Header().Add("X-Frame-Options", "SAMEORIGIN")
 		next.ServeHTTP(w, r)
 	})
 }
