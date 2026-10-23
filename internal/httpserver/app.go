@@ -216,7 +216,7 @@ func New(database *sql.DB, logger *logging.Logger, options Options) (*Applicatio
 		}
 	})
 
-	dynamicHandler := verifyOrigin(options.AppOrigin, renderer)(dynamicMux)
+	dynamicHandler := verifyOrigin(options.AppOrigin, renderer)(globalHeaders(dynamicMux))
 
 	mainMux := http.NewServeMux()
 	mainMux.HandleFunc("GET /health", func(responseWriter http.ResponseWriter, _ *http.Request) {
@@ -236,9 +236,7 @@ func New(database *sql.DB, logger *logging.Logger, options Options) (*Applicatio
 
 	handler := applyMiddleware(
 		mainMux,
-		setNoSniffHeaders,
-		cspNonce,
-		addCSPHeader,
+		securityHeaders,
 		recoverPanics(logger, renderer),
 	)
 	return &Application{Handler: handler, publicRoot: publicRoot}, nil
@@ -256,6 +254,10 @@ func newStaticHandler(publicRoot *os.Root) http.Handler {
 		if err != nil || fileInfo.IsDir() {
 			http.NotFound(responseWriter, request)
 			return
+		}
+		if relativePath == "shipping-widget.css" || relativePath == "shipping-widget.js" {
+			// responseWriter.Header().Del("Cross-Origin-Resource-Policy")
+			responseWriter.Header().Add("Cross-Origin-Resource-Policy", "cross-origin")
 		}
 		fileServer.ServeHTTP(responseWriter, request)
 	})
