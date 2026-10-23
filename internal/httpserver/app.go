@@ -256,7 +256,6 @@ func newStaticHandler(publicRoot *os.Root) http.Handler {
 			return
 		}
 		if relativePath == "shipping-widget.css" || relativePath == "shipping-widget.js" {
-			// responseWriter.Header().Del("Cross-Origin-Resource-Policy")
 			responseWriter.Header().Add("Cross-Origin-Resource-Policy", "cross-origin")
 		}
 		fileServer.ServeHTTP(responseWriter, request)

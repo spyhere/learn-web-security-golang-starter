@@ -9,15 +9,15 @@ import (
 )
 
 type Product struct {
-	ID             int64  `json:"id"`
-	Name           string `json:"name"`
-	Description    string `json:"description"`
-	ImagePath      string `json:"image_path"`
-	PriceCents     int64  `json:"price_cents"`
-	CostCents      int64  `json:"cost_cents"`
-	InventoryCount int64  `json:"inventory_count"`
-	IsActive       bool   `json:"is_active"`
-	CreatedAt      string `json:"created_at"`
+	ID             int64
+	Name           string
+	Description    string
+	ImagePath      string
+	PriceCents     int64
+	CostCents      int64
+	InventoryCount int64
+	IsActive       bool
+	CreatedAt      string
 }
 
 type Review struct {
